@@ -28,7 +28,85 @@ app.get("/", (req, res) => {
       sessions: "/api/sessions",
     },
   });
+
 });
+
+// CREATE -a new task
+app.post('/api/tasks', async (req, res) => {
+  try {
+    const newTask = new Task(req.body); // Create a new Task from request body
+    const savedTask = await newTask.save(); // Save() writes to DB
+    res.status(201).json(savedTask); // send back to DB
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  } // try/catch handles errors
+});
+
+// READ all - get all tasks
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.status(200).json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//READ ONE - Get a specific task
+app.get('/api/tasks/:id', async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// UPDATE - Modify a task
+app.put('/api/tasks/:id', async (req, res) => {
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.id, // Which task to update
+      req.body, // New data
+      {
+        new: true, // Return updated version
+        runValidators: true // Check schema rules
+      }
+    );
+    if (!updatedTask) {
+      return res.status(404).json({
+        message: "Task not found"
+      });
+    }
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+//DELETE - Remove a task
+app.delete('/api/tasks/:id', async (req, res) => {
+  try {
+    const deletedTask = await Task.findByIdAndDelete(
+      req.params.id
+    );
+    if (!deletedTask) {
+      return res.status(404).json({
+        message: 'Task not found'
+      });
+    }
+    res.json({
+      message: 'Task deleted successfully',
+      task: deletedTask
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 // TODO: Add your Task routes here
 // POST /api/tasks
@@ -43,4 +121,5 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-});
+}); 
+
