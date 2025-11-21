@@ -107,17 +107,25 @@ app.delete('/api/tasks/:id', async (req, res) => {
   }
 });
 
-
-// TODO: Add your Task routes here
-// POST /api/tasks
-// GET /api/tasks
-// GET /api/tasks/:id
-// PUT /api/tasks/:id
-// DELETE /api/tasks/:id
-
-// TODO: Add your Session routes here
-// POST /api/sessions
-// GET /api/sessions
+// CREATE - log a Pomodoro session
+app.post('/api/sessions', async (req, res) => {
+  try {
+    const newSession = new Session(req.body);
+    const savedSession = await newSession.save();
+    res.status(201).json(savedSession);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+// READ all - get all sessions
+app.get('/api/sessions', async (req, res) => {
+  try {
+    const sessions = await Session.find().populate("taskId"); // Populate task details
+    res.status(200).json(sessions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
