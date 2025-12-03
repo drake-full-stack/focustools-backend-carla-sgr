@@ -6,7 +6,11 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
+const cors = require('cors');
+app.use(cors());
 app.use(express.json());
+
+
 
 // MongoDB Connection
 mongoose
